@@ -102,10 +102,10 @@ if not scheme_df.empty:
                     annualized_label = "Annualized Return (XIRR %)"
 
                 else: # Lumpsum
-                    all_results, portfolio_chart_data, total_portfolio_investment, total_portfolio_final_value = calculate_lumpsum_returns(
+                    all_results, portfolio_chart_data, total_portfolio_investment, total_portfolio_final_value, overall_actual_start_date, overall_actual_end_date = calculate_lumpsum_returns(
                         selected_codes, selected_names, start_date, end_date, investment_amount, get_historical_nav
                     )
-                    overall_annualized_return = calculate_cagr(total_portfolio_investment, total_portfolio_final_value, start_date, end_date)
+                    overall_annualized_return = calculate_cagr(total_portfolio_investment, total_portfolio_final_value, overall_actual_start_date, overall_actual_end_date)
                     annualized_label = "CAGR (%)"
 
                 if not all_results:

@@ -147,4 +147,4 @@ def calculate_lumpsum_returns(selected_codes, selected_names, start_date, end_da
         })
         portfolio_chart_data = pd.concat([portfolio_chart_data, trade_data['nav'].rename(scheme_name)], axis=1)
 
-    return all_results, portfolio_chart_data, total_portfolio_investment, total_portfolio_final_value
+    return all_results, portfolio_chart_data, total_portfolio_investment, total_portfolio_final_value, actual_start_date, actual_end_date
