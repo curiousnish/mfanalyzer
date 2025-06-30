@@ -6,35 +6,32 @@ import requests
 @st.cache_data(ttl=3600)  # Cache the list of schemes for 1 hour
 def get_scheme_list():
     """
-    Fetches the list of all mutual fund schemes from the AMFI website.
+    Fetches the list of all mutual fund schemes from the MFAPI.
     This is used to populate the dropdown for scheme selection.
     """
-    url = "https://www.amfiindia.com/spages/NAVAll.txt"
+    url = "https://api.mfapi.in/mf"
     try:
         response = requests.get(url, timeout=10)
         response.raise_for_status()
-        data = response.text.splitlines()
+        data = response.json()
         
         schemes = []
-        for line in data:
-            if ";" in line and len(line.split(';')) == 6:
-                parts = line.split(';')
-                # Create a unique identifier for the dropdown
-                scheme_name = f"{parts[3].strip()} ({parts[0].strip()})"
-                schemes.append({
-                    "code": parts[0].strip(),
-                    "name": parts[3].strip(),
-                    "display_name": scheme_name
-                })
+        for item in data:
+            scheme_name = f"{item['schemeName']} ({item['schemeCode']})"
+            schemes.append({
+                "code": str(item['schemeCode']),
+                "name": item['schemeName'],
+                "display_name": scheme_name
+            })
         
         if not schemes:
-            st.error("Could not parse any schemes from the AMFI file.")
+            st.error("Could not parse any schemes from the MFAPI.")
             return pd.DataFrame()
             
         return pd.DataFrame(schemes)
 
     except requests.exceptions.RequestException as e:
-        st.error(f"Error fetching scheme list from AMFI: {e}")
+        st.error(f"Error fetching scheme list from MFAPI: {e}")
         return pd.DataFrame()
 
 @st.cache_data(ttl=3600) # Cache historical data for 1 hour
