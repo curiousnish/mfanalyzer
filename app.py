@@ -8,22 +8,10 @@ from calculator import calculate_sip_returns, calculate_lumpsum_returns, calcula
 # --- Streamlit App ---
 st.set_page_config(layout="wide", page_title="Mutual Fund Analyzer")
 
-# Inject custom CSS for a responsive sidebar and text wrapping
+# Inject custom CSS for text wrapping in multiselect
 st.markdown(
     """
     <style>
-    /* For desktop screens */
-    @media (min-width: 768px) {
-        [data-testid="stSidebar"] {
-            width: 450px !important;
-        }
-    }
-    /* For mobile screens */
-    @media (max-width: 767px) {
-        [data-testid="stSidebar"] {
-            width: 85vw !important; /* 85% of the viewport width */
-        }
-    }
     /* To wrap text in the multiselect dropdown */
     div[data-baseweb="select"] > div {
         white-space: normal !important;
@@ -47,42 +35,44 @@ st.markdown("Analyze the historical performance of your SIP or Lumpsum investmen
 scheme_df = get_scheme_list()
 
 if not scheme_df.empty:
-    # --- Sidebar for User Inputs ---
-    st.sidebar.header("Investment Parameters")
+    # --- User Inputs within an Expander ---
+    with st.expander("Investment Parameters", expanded=True):
+        investment_type = st.radio("Investment Type", ["SIP", "Lumpsum"])
 
-    investment_type = st.sidebar.radio("Investment Type", ["SIP", "Lumpsum"])
-
-    all_schemes_display = sorted(scheme_df['display_name'].unique())
-    
-    selected_schemes_display = st.sidebar.multiselect(
-        "Select Mutual Fund Schemes",
-        options=all_schemes_display,
-        default=[]
-    )
-
-    today = datetime.today()
-    default_start = today - timedelta(days=3*365) # 3 years ago
-    default_end = today
-
-    start_date = st.sidebar.date_input("Start Date", value=default_start)
-    end_date = st.sidebar.date_input("End Date", value=default_end)
-
-    if investment_type == "SIP":
-        investment_amount = st.sidebar.number_input(
-            "Monthly SIP Amount (per scheme)",
-            min_value=500,
-            value=5000,
-            step=500
-        )
-    else: # Lumpsum
-        investment_amount = st.sidebar.number_input(
-            "Lumpsum Investment Amount (per scheme)",
-            min_value=1000,
-            value=50000,
-            step=1000
+        all_schemes_display = sorted(scheme_df['display_name'].unique())
+        
+        selected_schemes_display = st.multiselect(
+            "Select Mutual Fund Schemes",
+            options=all_schemes_display,
+            default=[]
         )
 
-    if st.sidebar.button("Analyze Returns"):
+        today = datetime.today()
+        default_start = today - timedelta(days=3*365) # 3 years ago
+        default_end = today
+
+        col1, col2 = st.columns(2)
+        with col1:
+            start_date = st.date_input("Start Date", value=default_start)
+        with col2:
+            end_date = st.date_input("End Date", value=default_end)
+
+        if investment_type == "SIP":
+            investment_amount = st.number_input(
+                "Monthly SIP Amount (per scheme)",
+                min_value=500,
+                value=5000,
+                step=500
+            )
+        else: # Lumpsum
+            investment_amount = st.number_input(
+                "Lumpsum Investment Amount (per scheme)",
+                min_value=1000,
+                value=50000,
+                step=1000
+            )
+
+    if st.button("Analyze Returns"):
         if not selected_schemes_display:
             st.warning("Please select at least one mutual fund scheme.")
         elif start_date >= end_date:
@@ -137,7 +127,7 @@ if not scheme_df.empty:
 else:
     st.error("Failed to load the list of mutual funds from AMFI. The application cannot proceed. Please try again later.")
 
-st.sidebar.info(
+st.info(
     "This app uses data from AMFI and the free MFAPI.in service. "
     "Always verify data with official sources before making financial decisions."
 )
