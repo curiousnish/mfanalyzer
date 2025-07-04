@@ -1,0 +1,4 @@
+- [ ] get the fund details 
+- [ ] get the benchmark used by the fund
+- [ ] kpi - comparison of the fund and benchmark
+  - [ ] also include it in the graph
